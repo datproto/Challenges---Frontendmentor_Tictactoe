@@ -1,0 +1,12 @@
+html, body {
+    @apply 
+        w-full
+        h-full
+        ;
+    font-family: 'Outfit', sans-serif;
+}
+
+body {
+    @apply
+        bg-navi-dark
+}

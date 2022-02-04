@@ -1,61 +1,41 @@
 import type { NextPage } from 'next'
 import Head from 'next/head'
 
-import Counter from '../features/counter/Counter'
-import styles from '../styles/Home.module.css'
+import { useAppDispatch, useAppSelector } from '../app/hooks'
+import { selectWinCount, selectMove } from '../features/tictactoe/tictactoeSlice'
+
+import { addStep } from '../features/tictactoe/tictactoeSlice'
 
 const IndexPage: NextPage = () => {
+  const state = useAppSelector(selectMove)
+  const dispatch = useAppDispatch()
+
+  const players = [
+    'x', 'o'
+  ]
+
+  const add = (p: 'x' | 'o') => {
+    dispatch(
+      addStep({
+        step: Math.floor(Math.random() * 10) + 1,
+        player: p
+      })
+    )
+  }
+
   return (
-    <div className={styles.container}>
+    <div>
       <Head>
-        <title>Redux Toolkit</title>
-        <link rel="icon" href="/favicon.ico" />
+        <title>Tic Tac Toe - Frontendmentor challenge</title>
+        <link rel="icon" href="/assets/favicon-32x32.png" />
       </Head>
-      <header className={styles.header}>
-        <img src="/logo.svg" className={styles.logo} alt="logo" />
-        <Counter />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <span>
-          <span>Learn </span>
-          <a
-            className={styles.link}
-            href="https://reactjs.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            React
-          </a>
-          <span>, </span>
-          <a
-            className={styles.link}
-            href="https://redux.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Redux
-          </a>
-          <span>, </span>
-          <a
-            className={styles.link}
-            href="https://redux-toolkit.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Redux Toolkit
-          </a>
-          ,<span> and </span>
-          <a
-            className={styles.link}
-            href="https://react-redux.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            React Redux
-          </a>
-        </span>
-      </header>
+      <button onClick={() => add('x')} type="button" className="px-5 py-2 rounded-md bg-blue-light text-navi-dark">Add X step</button>
+      <button onClick={() => add('o')} type="button" className="px-5 py-2 rounded-md bg-yellow-light text-navi-dark">Add Y step</button>
+      <div className='font-bold text-silver-normal'>
+        {state.map((s, i) => (
+          <div><pre>{JSON.stringify(s.step, null, 2) }</pre></div>
+        ))}
+      </div>
     </div>
   )
 }
