@@ -1,8 +1,58 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useAppSelector } from '../app/hooks';
 import Button from '../components/button';
+import { selectBoard } from '../features/tictactoe/tictactoeSlice';
+import _ from 'lodash';
 
 function Game() {
-  const [step, setStep] = useState(false);
+  // STEP 1: Generate board
+  const board = useAppSelector(selectBoard);
+  let steps = _.map(new Array(board ** 2), (el, i) => [
+    `step-${i}`,
+    null,
+    false,
+  ]);
+
+  function* chunks(arr, n) {
+    for (let i = 0; i < arr.length; i += n) {
+      yield arr.slice(i, i + n);
+    }
+  }
+
+  // STEP 2: Update player movement and player turn
+  const [step, setStep] = useState(steps);
+  const [playerX, setPlayerX] = useState([]);
+  const [playerO, setPlayerO] = useState([]);
+  const [turn, setTurn] = useState(true);
+  const updateStep = (id: string, pos: number, player: string, status) => {
+    if (!status) {
+      // Update step
+      let oldSteps = [...step];
+      let item = [...oldSteps[pos]];
+      item = [id, player, true];
+      oldSteps[pos] = item;
+      setStep(oldSteps);
+
+      // Change player
+      setTurn(!turn);
+
+      // Check winner
+      if (player == 'x') {
+        setPlayerX([...playerX, pos]);
+      } else {
+        setPlayerO([...playerO, pos]);
+      }
+    }
+  };
+  const playerIcon = turn ? '/assets/icon-x.svg' : '/assets/icon-o.svg';
+
+  // STEP 3: Reset the game
+  const resetStep = () => {
+    setStep(steps);
+    setTurn(true);
+    setPlayerX([]);
+    setPlayerO([]);
+  };
 
   return (
     <div
@@ -28,8 +78,8 @@ function Game() {
             className={`w-16 h-16 transition-[background] ease-in-out duration-500 bg-silver-normal`}
             style={{
               transform: 'scale(0.35)',
-              WebkitMask: 'url(/assets/icon-x.svg) no-repeat center',
-              mask: 'url(/assets/icon-x.svg) no-repeat center',
+              WebkitMask: `url(${playerIcon}) no-repeat center`,
+              mask: `url(${playerIcon}) no-repeat center`,
             }}
           />
           <div className="-ml-2 text-base font-bold tracking-wider uppercase">
@@ -38,34 +88,47 @@ function Game() {
         </div>
 
         <div className="flex justify-center">
-          <Button type="secondary" color="grey">
+          <Button type="secondary" color="grey" onclick={() => resetStep()}>
             <img src="/assets/icon-restart.svg" alt="" />
           </Button>
         </div>
       </div>
       {/* Tictactoe */}
       <div className="grid w-full grid-cols-3 grid-rows-3 gap-6">
-        {Array.apply(null, { length: 9 }).map((e, i) => (
-          <div
-            key={i}
-            className="flex items-center justify-center w-full cursor-pointer bg-navi-dark-semi rounded-2xl"
-            style={{
-              padding: '50%',
-              boxShadow: 'inset 0 -8px 0 0 #10212A',
-            }}
-            onClick={() => setStep(!step)}
-          >
-            {step ? (
-              <img
-                src="/assets/icon-x.svg"
-                className="absolute scale-125 t-0 r-0 b-0 l-0"
-                alt=""
-              />
-            ) : (
-              <></>
-            )}
-          </div>
-        ))}
+        {step.map((s, i) => {
+          const player = turn ? 'x' : 'o';
+
+          return (
+            <div
+              key={i}
+              id={s[0]}
+              className="flex items-center justify-center w-full cursor-pointer bg-navi-dark-semi rounded-2xl"
+              style={{
+                padding: '50%',
+                boxShadow: 'inset 0 -8px 0 0 #10212A',
+              }}
+              onClick={() => updateStep(s[0], i, player, s[2])}
+            >
+              {s[1] ? (
+                s[1] == 'x' ? (
+                  <img
+                    src="/assets/icon-x.svg"
+                    className="absolute scale-125 t-0 r-0 b-0 l-0"
+                    alt=""
+                  />
+                ) : (
+                  <img
+                    src="/assets/icon-o.svg"
+                    className="absolute scale-125 t-0 r-0 b-0 l-0"
+                    alt=""
+                  />
+                )
+              ) : (
+                <></>
+              )}
+            </div>
+          );
+        })}
 
         {/* Score cards */}
         <div className="flex flex-col items-center justify-center pt-4 pb-3 rounded-lg bg-blue-light">

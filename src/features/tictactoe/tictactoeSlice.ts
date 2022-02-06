@@ -12,6 +12,7 @@ export interface TictactoeState {
         wins: number
         player: 'x' | 'o'
     }[]
+    board: number
 }
 
 const initialState: TictactoeState = {
@@ -26,7 +27,8 @@ const initialState: TictactoeState = {
         }
     ],
     winner: null,
-    winCount: null
+    winCount: null,
+    board: 3
 }
 
 const titactoeSlice = createSlice({
@@ -53,6 +55,7 @@ const titactoeSlice = createSlice({
     }
 })
 
+export const selectBoard = (state: AppState) => state.tictactoe.board
 export const selectMove = (state: AppState) => state.tictactoe.move
 export const selectWinCount = (state: AppState) => state.tictactoe.winCount
 
